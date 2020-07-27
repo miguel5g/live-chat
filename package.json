@@ -1,0 +1,21 @@
+{
+  "name": "live-chat",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:miguel5g/live-chat.git",
+  "author": "Miguel Ângelo <miguelcg958@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node ./src/Server.js",
+    "dev": "nodemon ./src/Server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "md5": "^2.2.1",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}

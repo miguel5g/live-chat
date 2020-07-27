@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <title>Live-Chat</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    *,
+    button,
+    input {
+      font-family: 'Ubuntu', sans-serif;
+      outline: none;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    a:link,
+    a:visited,
+    a:active {
+      color: #000;
+      text-decoration: none;
+    }
+
+    i.fas,
+    i.fab,
+    i.far {
+      margin-right: 3px;
+    }
+
+    .button {
+      padding: 5px;
+      border: solid 1px #6f00ff;
+      border-radius: 3px;
+      color: #000;
+      box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.25);
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .button:hover {
+      color: #fff;
+      background-color: #6f00ff;
+    }
+
+    div.main-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    div.main-container>h1 {
+      font-size: 18pt;
+    }
+
+    div.main-container>h1>i {
+      color: #6f00ff;
+    }
+
+    div.main-container>p {
+      font-size: 14pt;
+      font-weight: 300;
+      margin-bottom: 30px;
+    }
+
+    ul.chats {
+      margin-top: 50px;
+      width: 80%;
+    }
+
+    li.chat {
+      list-style: none;
+      padding: 10px;
+      margin-bottom: 10px;
+
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+
+      border: solid 1px #cecece;
+      border-radius: 5px;
+      transition: background 0.2s;
+      box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.25);
+    }
+
+    li.chat:hover {
+      background-color: #f5f5f5;
+    }
+
+    li.chat>div {
+      display: flex;
+      align-items: center;
+    }
+
+    li.chat>div>h2 {
+      font-size: 16pt;
+    }
+
+    li.chat>div>span {
+      font-size: 14pt;
+      font-weight: 300;
+      margin-left: 10px;
+    }
+
+    li.chat>div>span>i {
+      margin-right: 3px;
+    }
+
+    li.chat>div>a.button {
+      font-size: 14pt;
+      font-weight: 300;
+    }
+
+    form.create-chat {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      padding: 10px;
+
+      box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.25);
+      border: solid 1px #cecece;
+      border-radius: 5px;
+    }
+
+    form.create-chat>h2 {
+      font-size: 16pt;
+      font-weight: 300;
+      margin-bottom: 10px;
+    }
+
+    form.create-chat>input {
+      padding: 3px;
+      border-radius: 3px;
+      border: solid 1px #cecece;
+      margin-bottom: 10px;
+      transition: 0.2s;
+      font-size: 12pt;
+    }
+
+    form.create-chat>input:focus {
+      border: solid 1px #6f00ff;
+      background-color: #f5f5f5;
+    }
+
+    @media only screen and (max-width: 768px) {
+      ul.chats {
+        width: 95%;
+      }
+
+      li.chat>div>h2 {
+        font-size: 12pt;
+      }
+
+      li.chat>div>span>i {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="main-container">
+    <h1><i class="fab fa-rocketchat"></i>Live-Chat</h1>
+    <p>Real time chats!</p>
+    <form class="create-chat">
+      <h2>Criar chat</h2>
+      <input type="text" name="chat-name" placeholder="Nome do chat" id="chat-name">
+      <button class="button"><i class="fas fa-plus"></i>Criar</button>
+    </form>
+    <ul class="chats">
+    </ul>
+  </div>
+  <script>
+    document.querySelector('form.create-chat').addEventListener('submit', handleCreateChat);
+
+    const chatsElem = document.querySelector('ul.chats');
+
+    axios.get('http://192.168.0.109:3333/api/chats')
+      .then(response => {
+        const chats = response.data;
+        console.log(chats)
+        chats.map(chat => {
+          const elem = `
+          <li class="chat">
+            <div>
+              <h2>${chat.title}</h2>
+              <span><i class="far fa-user"></i>${chat.users.filter(user => user.id === chat.owner)[0].username}</span>
+            </div>
+            <a class="button" href="http://192.168.0.109:3333/${chat.id}">Entrar</a>
+          </li>
+          `;
+
+          chatsElem.innerHTML = chatsElem.innerHTML + elem;
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Erro ao listar chats.');
+      });
+
+    function handleCreateChat(e) {
+      e.preventDefault();
+
+      const chatName = document.querySelector('form.create-chat > input#chat-name').value;
+
+      axios.post('http://192.168.0.109:3333/api/chats', { chatName })
+        .then(response => {
+          const { id } = response.data;
+
+          window.location.href = window.location.href + id;
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Erro ao criar chat!');
+        });
+    }
+  </script>
+</body>
+
+</html>

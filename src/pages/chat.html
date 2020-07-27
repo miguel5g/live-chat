@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <title>Live-Chat</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    *,
+    button,
+    input {
+      font-family: 'Ubuntu', sans-serif;
+      outline: none;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    a:link,
+    a:visited,
+    a:active {
+      color: #000;
+      text-decoration: none;
+    }
+
+    i.fas,
+    i.fab,
+    i.far {
+      margin-right: 3px;
+    }
+
+    .button {
+      padding: 5px;
+      border: solid 1px #6f00ff;
+      border-radius: 3px;
+      color: #000;
+      box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.25);
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .button:hover {
+      color: #fff;
+      background-color: #6f00ff;
+    }
+
+    div.main-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    div.main-container>h1 {
+      font-size: 18pt;
+    }
+
+    div.main-container>h1>i {
+      color: #6f00ff;
+    }
+
+    div.main-container>p {
+      font-size: 14pt;
+      font-weight: 300;
+      margin-bottom: 30px;
+    }
+
+    div.main-container.connected>div.connect {
+      display: none;
+    }
+
+    div.connect {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      padding: 20px;
+
+      box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.25);
+      border: solid 1px #cecece;
+      border-radius: 5px;
+    }
+
+    div.connect>input {
+      padding: 3px;
+      border-radius: 3px;
+      border: solid 1px #cecece;
+      margin-bottom: 10px;
+      transition: 0.2s;
+      font-size: 12pt;
+    }
+
+    div.connect>input:focus {
+      border: solid 1px #6f00ff;
+      background-color: #f5f5f5;
+    }
+
+    div.main-container.connected>div.chat {
+      display: inline;
+    }
+
+    div.chat {
+      display: none;
+      width: 80%;
+      height: 80%;
+      max-height: 80%;
+
+      box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.25);
+      border: solid 1px #cecece;
+      border-radius: 5px;
+    }
+
+    div.chat>div.messages {
+      width: 100%;
+      padding: 15px;
+      height: calc(100% - 40px);
+      display: flex;
+      justify-content: end;
+      align-items: flex-start;
+      flex-direction: column;
+      overflow-y: scroll;
+    }
+
+    div.chat>div.messages>div.message {
+      margin-top: 10px;
+      padding: 5px;
+      display: flex;
+      background-color: #f5f5f5;
+      box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.25);
+      border: solid 1px #cecece;
+      border-radius: 5px;
+      width: max-content;
+      max-width: 90%;
+      height: max-content;
+    }
+
+    div.chat>div.messages>div.message>span {
+      word-wrap: break-word;
+      overflow: hidden;
+    }
+
+    div.chat>div.messages>div.message.me {
+      margin-left: auto;
+      background-color: #e8d9fc;
+    }
+
+    div.chat>div.messages>span.warn {
+      margin: 0 auto;
+      margin-top: 10px;
+      background-color: rgb(209, 238, 255);
+      padding: 3px;
+      border-radius: 5px;
+    }
+
+    div.chat>div.input {
+      height: 40px;
+      display: flex;
+
+      box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.25);
+      border-top: solid 1px #cecece;
+      border-radius: 0 0 5px 5px;
+    }
+
+    div.chat>div.input>input {
+      height: 100%;
+      width: 90%;
+      border: none;
+      font-size: 13pt;
+      padding: 3px;
+      border: solid 1px transparent;
+      border-radius: 0 0 0 5px;
+    }
+
+    div.chat>div.input>input:focus {
+      border: solid 1px #6f00ff;
+      border-right: none;
+    }
+
+    div.chat>div.input>button {
+      height: 100%;
+      width: 10%;
+      border-radius: 0 0 5px 0;
+    }
+
+    @media only screen and (max-width: 768px) {
+      div.chat {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="main-container">
+    <h1><i class="fab fa-rocketchat"></i>Live-Chat</h1>
+    <p>Real time chats!</p>
+    <div class="connect">
+      <input type="text" name="username" id="username" placeholder="Nome de usuário">
+      <button class="button" onclick="handleConnect()">
+        <i class="fas fa-sign-in-alt"></i>
+        Conectar
+      </button>
+    </div>
+    <div class="chat">
+      <div class="messages">
+      </div>
+      <div class="input">
+        <input type="text" name="message" id="message-input" placeholder="Digite...">
+        <button class="button" onclick="handleMessage()">Enviar</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const socket = io();
+    const chatId = window.location.href.split('/')[window.location.href.split('/').length - 1];
+    const divMsgs = document.querySelector('div.messages');
+    const inputMsg = document.querySelector('input#message-input');
+    let chatUsers = [];
+    let myId = undefined;
+
+    document.addEventListener('keyup', (e) => {
+      if (e.code === 'Enter') handleMessage();
+    });
+
+    socket.on('join_chat_error', (data) => {
+      console.error(data);
+      alert('Erro ao conectar ao chat!');
+    });
+
+    socket.on('join_chat_success', (data) => {
+      myId = data.id;
+      updateChatUsers();
+      document.querySelector('div.main-container').classList.add(['connected']);
+      addWarn('Você entrou!');
+    });
+
+    socket.on('chat_not_exist', (data) => {
+      window.location.href = 'http://localhost:3333'
+    });
+
+    socket.on('message', (data) => {
+      const { message, sender: senderId } = data;
+
+      addMessage(message, senderId);
+    });
+
+    socket.on('user_join', (data) => {
+      updateChatUsers();
+      addWarn(`${data.username} entrou!`);
+    });
+
+    socket.on('user_quit', (data) => {
+      console.log(data.id, chatUsers)
+      const username = chatUsers.filter(user => user.id === data.id)[0].username;
+      updateChatUsers();
+      addWarn(`${username} saiu!`);
+    });
+
+    function updateChatUsers() {
+      console.log(chatId);
+      axios.get(`http://192.168.0.109:3333/api/chats/${chatId}`)
+        .then(response => {
+          chatUsers = response.data.users;
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Erro ao atualizar lista de usuários.');
+        });
+    }
+
+    function updateScroll() {
+      divMsgs.scrollTop = divMsgs.scrollHeight;
+    }
+
+    function addMessage(message, senderId) {
+      const elem = `
+      <div class="message${myId === senderId ? ' me' : ''}">
+        <span>${message}</span>
+      </div>
+        `;
+
+      divMsgs.innerHTML = divMsgs.innerHTML + elem;
+      updateScroll();
+    }
+
+    function addWarn(message) {
+      const elem = `
+      <span class="warn">${message}</span>
+        `;
+
+      divMsgs.innerHTML = divMsgs.innerHTML + elem;
+      updateScroll();
+    }
+
+    function handleConnect() {
+      const username = document.querySelector('input#username').value;
+
+
+      socket.emit('join_chat', { username, id: chatId });
+    }
+
+    function handleMessage() {
+      const message = inputMsg.value;
+      inputMsg.value = '';
+
+      if (message === '' || !message) {
+        return;
+      }
+
+      addMessage(message, myId);
+
+      socket.emit('message', { message, id: chatId });
+    }
+  </script>
+</body>
+
+</html>
