@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -197,7 +199,7 @@
     axios.get('http://192.168.0.109:3333/api/chats')
       .then(response => {
         const chats = response.data;
-        console.log(chats)
+
         chats.map(chat => {
           const elem = `
           <li class="chat">
