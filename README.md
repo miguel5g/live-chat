@@ -1,11 +1,11 @@
 <h1 align="center">
-    <img alt="Live-Chat" src=".github/Logo.png" width="220px" />
+    <img alt="Live-Chat" src=".github/Logo.svg" width="220px" />
     Live-Chat
 </h1>
 
 <p align="center">
   <a href="#tecnologias">Tecnologias</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#projeto">Projeto</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#projeto">Projeto</a>
 </p>
 
 <br>
@@ -25,7 +25,3 @@ Principais tecnologias usadas no desenvolvimento:
 ## Projeto
 
 Live-Chat é um simples app desenvolvido em nodejs juntamente com express e socket.io para criar bate-papos em tempo ral com outras pessoas.
-
----
-
-by Miguel Ângelo.
