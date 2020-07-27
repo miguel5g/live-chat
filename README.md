@@ -1,6 +1,5 @@
 <h1 align="center">
-    <img alt="Live-Chat" src=".github/Logo.svg" width="220px" />
-    Live-Chat
+    <img alt="Live-Chat" src=".github/Logo.svg" width="250px" />
 </h1>
 
 <p align="center">
